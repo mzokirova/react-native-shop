@@ -5,10 +5,10 @@ import { Link } from 'expo-router';
 
 export default function ProductListItem({product}:{product:Product}) {
   return (
-<Link  asChild href={`/products/${product.slug}`}>
+<Link  asChild href={`/product/${product.slug}`}>
 <Pressable style={styles.item}>
         <View style={styles.itemImageContainer}>
-            <Image source={product.heroImage} style={styles.itemImage}/>
+            <Image source={{uri:product.heroImage}} style={styles.itemImage}/>
         </View>
 
         <View style={styles.itemTextContainer}>

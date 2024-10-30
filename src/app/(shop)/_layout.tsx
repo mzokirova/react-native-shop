@@ -33,7 +33,7 @@ const Tabslayout=()=>{
             }
         }}/>
         <Tabs.Screen name="orders" options={{
-            title:"orders",
+            title:"Orders",
             tabBarIcon(props){
                 return <TabBarIcon {...props} name="book"/>
             }

@@ -1,6 +1,6 @@
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 import { useToast } from 'react-native-toast-notifications';
 import { PRODUCTS } from '../../../assets/products';
 import { useCartStore } from '../../store/cart-store';
@@ -15,16 +15,97 @@ export default function ProductDetails() {
 
     const initialQuantity=cartItem ? cartItem.quantity :1;
     const [quantity,setQuantity]=useState(initialQuantity);
-    const increaseQuantity=()=>{};
-    const decreaseQuantity=()=>{};
+    const increaseQuantity=()=>{
+      if(quantity<product.maxQuantity){
+        setQuantity(prev=>prev+1);
+        incrementItem(product.id);
+      }
+      else{
+        toast.show("Cannot add more than maximum quantity",{
+          type:'warning',
+          placement:'top',
+          duration:1500
+        })
+      }
+    };
+    const decreaseQuantity=()=>{
+      if(quantity>1){
+        setQuantity(prev=>prev-1);
+        decrementItem(product.id);
+      }
+    };
 
-    const addToCart=()=>{}
+    const addToCart=()=>{
+      addItem({
+        id:product.id,
+        title:product.title,
+        image:product.heroImage,
+        price:product.price,
+        quantity,
+      });
+      toast.show("Added to cart",{
+        type:"success",
+        placement:"top",
+        duration:1500
+      })
+    }
+
+    const totalPrice=(product.price*quantity).toFixed();
   return (
     <View style={styles.container} >
         <Stack.Screen options={{
             title:product.title
         }}/>
-      <Text>ProductDetails</Text>
+        <Image source={product.heroImage} style={styles.heroImage} />
+        <View style={{padding:16,flex:1}}>
+          <Text style={styles.title}>Title:{product.title}</Text>
+          <Text style={styles.slug}>Slug:{product.slug}</Text>
+
+          <View style={styles.priceContainer}>
+            <Text style={styles.price}>
+          Unit price :${product.price.toFixed(2)}
+            </Text>
+            <Text style={styles.price}>Total Price: ${totalPrice}</Text>
+          </View>
+
+        <FlatList
+        data={product.imagesUrl}
+        keyExtractor={(item,index)=>index.toString()}
+        renderItem={({item})=>(
+          <Image source={item} style={styles.image}/>
+        )}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.imagesContainer}
+        />
+        <View style={styles.buttonContainer} >
+        <TouchableOpacity
+        style={styles.quantityButton}
+        onPress={decreaseQuantity}
+        disabled={quantity<=1}
+        >
+          <Text style={styles.quantityButtonText}>-</Text>
+        </TouchableOpacity>
+        <Text style={styles.quantity}>{quantity}</Text>
+        <TouchableOpacity
+        style={styles.quantityButton}
+        onPress={increaseQuantity}
+        disabled={quantity>=product.maxQuantity}
+        >
+          <Text style={styles.quantityButtonText}>+</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+        style={[styles.addToCartButton,
+          {opacity:quantity===0? 0.5 :1},]
+        }
+        onPress={addToCart}
+        disabled={quantity===0}
+        >
+          <Text style={styles.addToCartText}>Add to Cart</Text>
+        </TouchableOpacity>
+        </View>
+        </View>
      </View>
   );
 }
